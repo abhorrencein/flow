@@ -2,643 +2,158 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="MWR Intelligence — Field data and policy research rendered as scrollable visual stories. Built to be read, not filed.">
-<meta name="theme-color" content="#0A0A0F">
-<link rel="canonical" href="https://stories.mwrcollective.com/">
-<meta property="og:title" content="MWR Intelligence">
-<meta property="og:description" content="Field data and policy research rendered as scrollable visual stories.">
-<meta property="og:type" content="website">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<title>MWR Intelligence — Stories</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MWR Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500;600&family=DM+Mono:wght@300;400&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500;600&family=DM+Mono:wght@300;400&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400;500&family=Manrope:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html{font-size:17px;scroll-behavior:smooth}
-body{background:#0A0A0F;color:#F0EDE8;font-family:"Manrope",sans-serif;overflow-x:hidden}
-:root{
-  --ink:#0A0A0F;--paper:#F0EDE8;
-  --burg:#C8203A;--amber:#D4823E;--teal:#1B7A65;--blue:#2058A8;--violet:#6B3FA0;
-  --f-d:"Syne",sans-serif;--f-m:"DM Mono",monospace;--f-s:"Lora",serif;
-  --ease:cubic-bezier(0.22,1,0.36,1);
-  --shadow:0 20px 40px -10px rgba(0,0,0,.4);
-}
-
-/* ── TOPBAR ── */
-#topbar{
-  position:fixed;top:0;left:0;right:0;height:44px;z-index:900;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 2.4rem;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  background:rgba(10,10,15,.92);
-  backdrop-filter:blur(20px);
-}
-.tb-back{
-  font-family:var(--f-m);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
-  text-decoration:none;color:rgba(255,255,255,.42);
-  display:flex;align-items:center;gap:.5rem;transition:color .2s;
-}
-.tb-back::before{content:"←"}
-.tb-back:hover{color:rgba(255,255,255,.75)}
-.tb-brand{
-  font-family:var(--f-d);font-size:.95rem;font-weight:800;letter-spacing:-.03em;
-  color:#F0EDE8;position:absolute;left:50%;transform:translateX(-50%);
-}
-.tb-brand span{color:var(--burg)}
-.tb-right{
-  font-family:var(--f-m);font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;
-  color:rgba(255,255,255,.32);
-}
-
-/* ── HERO ── */
-#hero{
-  min-height:100vh;
-  display:flex;flex-direction:column;justify-content:flex-end;
-  padding:0 3.2rem 5rem;
-  position:relative;overflow:hidden;
-}
-#hero-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
-.hero-inner{position:relative;z-index:2;max-width:780px}
-.hero-kicker{
-  font-family:var(--f-m);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--burg);display:flex;align-items:center;gap:.75rem;margin-bottom:1.75rem;
-  opacity:0;animation:up .8s var(--ease) .3s forwards;
-}
-.hero-kicker::before{content:"";width:24px;height:1px;background:var(--burg)}
-.hero-hed{
-  font-family:var(--f-d);font-size:clamp(3.5rem,8vw,7rem);font-weight:800;
-  line-height:.88;letter-spacing:-.05em;color:#F0EDE8;
-  margin-bottom:1.75rem;
-  opacity:0;animation:up 1s var(--ease) .5s forwards;
-}
-.hero-hed em{color:var(--burg);font-style:normal;display:block}
-.hero-dek{
-  font-family:var(--f-s);font-size:1.1rem;font-weight:400;font-style:italic;
-  color:rgba(240,237,232,.55);line-height:1.75;max-width:520px;
-  margin-bottom:2.5rem;
-  opacity:0;animation:up .8s var(--ease) .75s forwards;
-}
-.hero-meta{
-  display:flex;align-items:center;gap:2rem;
-  opacity:0;animation:up .8s var(--ease) .9s forwards;
-}
-.hero-stat{display:flex;flex-direction:column;gap:.3rem}
-.hs-num{font-family:var(--f-d);font-size:1.8rem;font-weight:800;letter-spacing:-.04em;color:#F0EDE8;line-height:1}
-.hs-label{font-family:var(--f-m);font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.38)}
-.hero-div{width:1px;height:40px;background:rgba(255,255,255,.12)}
-.hero-scroll{
-  font-family:var(--f-m);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(255,255,255,.28);display:flex;align-items:center;gap:.5rem;margin-left:auto;
-}
-.hero-scroll::after{content:"↓";animation:bob 2s ease-in-out infinite}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
-
-/* ── NEW FEATURED STORY HERO (right after main hero) ── */
-#featured-hero{
-  padding:3rem 3.2rem;
-  background:linear-gradient(180deg, rgba(32,88,168,.08) 0%, transparent 100%);
-  border-bottom:1px solid rgba(255,255,255,.06);
-  position:relative;
-}
-.featured-hero-inner{
-  max-width:1100px;margin:0 auto;
-  display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;
-}
-.featured-hero-content h2{
-  font-family:var(--f-d);font-size:clamp(2.2rem,4vw,3.2rem);font-weight:800;
-  line-height:1.05;letter-spacing:-.04em;margin-bottom:1rem;
-}
-.featured-hero-content .sector-tag{
-  font-family:var(--f-m);font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--blue);display:inline-flex;align-items:center;gap:.5rem;margin-bottom:1rem;
-}
-.featured-hero-content .sector-tag::before{content:"";display:inline-block;width:8px;height:8px;background:var(--blue);border-radius:50%}
-.featured-hero-content p{
-  font-family:var(--f-s);font-size:1.15rem;font-style:italic;color:rgba(240,237,232,.7);line-height:1.6;
-  max-width:480px;
-}
-.featured-cta{
-  display:inline-flex;align-items:center;gap:1rem;
-  font-family:var(--f-m);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;
-  color:#F0EDE8;background:rgba(32,88,168,.9);padding:1rem 2rem;border-radius:9999px;
-  text-decoration:none;transition:all .3s var(--ease);
-}
-.featured-cta:hover{transform:translateY(-2px);box-shadow:var(--shadow);background:#2058A8}
-.featured-viz{
-  height:380px;border-radius:12px;overflow:hidden;background:#0F0F18;
-  position:relative;box-shadow:var(--shadow);
-  display:flex;align-items:center;justify-content:center;
-}
-
-/* Upgraded mini-bar (no longer ugly) */
-.mini-bar-chart{width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:1.8rem}
-.mbc-bar{border-radius:2px 2px 0 0;transition:all .4s var(--ease);flex:1;max-width:30px;box-shadow:0 4px 15px -4px rgba(32,88,168,.6)}
-.mbc-bar:hover{transform:scaleY(1.06)}
-
-/* ── FILTERS ── */
-#filters{
-  padding:1.5rem 3.2rem;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  display:flex;align-items:center;gap:.5rem;
-  overflow-x:auto;scrollbar-width:none;
-  background:rgba(255,255,255,.018);
-  position:sticky;top:44px;z-index:800;
-  backdrop-filter:blur(12px);
-}
-#filters::-webkit-scrollbar{display:none}
-.filter-btn{
-  font-family:var(--f-m);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;
-  padding:.35rem .9rem;border:1px solid rgba(255,255,255,.12);
-  color:rgba(255,255,255,.45);background:transparent;cursor:pointer;
-  transition:all .2s;white-space:nowrap;flex-shrink:0;
-}
-.filter-btn:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.75)}
-.filter-btn.active{border-color:var(--burg);color:var(--burg);background:rgba(200,32,58,.07)}
-
-/* ── STORIES GRID ── */
-#stories{padding:3.5rem 3.2rem 5rem}
-.stories-header{
-  display:flex;align-items:baseline;justify-content:space-between;
-  margin-bottom:2.5rem;
-}
-.stories-title{
-  font-family:var(--f-m);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
-  color:rgba(255,255,255,.35);
-}
-.stories-count{
-  font-family:var(--f-d);font-size:.85rem;font-weight:800;color:rgba(255,255,255,.18);
-}
-.stories-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:1.5rem}
-
-/* ── STORY CARD ── */
-.story-card{
-  border:1px solid rgba(255,255,255,.07);
-  background:rgba(255,255,255,.022);
-  text-decoration:none;color:inherit;
-  display:flex;flex-direction:column;
-  transition:border-color .25s,background .25s,transform .3s var(--ease);
-  position:relative;overflow:hidden;
-  opacity:0;transform:translateY(12px);
-}
-.story-card.vis{opacity:1;transform:translateY(0)}
-.story-card:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);transform:translateY(-2px)}
-.story-card.featured{grid-column:span 7}
-.story-card.secondary{grid-column:span 5}
-.story-card.third{grid-column:span 4}
-.story-card.coming{grid-column:span 4;opacity:.45;pointer-events:none}
-.story-card.coming.vis{opacity:.45}
-
-/* Card accent bar */
-.story-card::before{
-  content:"";position:absolute;top:0;left:0;right:0;height:2px;
-  transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease);
-}
-.story-card:hover::before{transform:scaleX(1)}
-.story-card.health::before{background:var(--burg)}
-.story-card.gender::before{background:var(--violet)}
-.story-card.agriculture::before{background:var(--amber)}
-.story-card.governance::before{background:var(--blue)}
-.story-card.climate::before{background:var(--teal)}
-.story-card.education::before{background:var(--amber)}
-
-/* Card viz area */
-.card-viz{
-  height:180px;overflow:hidden;position:relative;
-  background:#0F0F18;border-bottom:1px solid rgba(255,255,255,.05);
-  display:flex;align-items:center;justify-content:center;
-}
-.story-card.featured .card-viz{height:260px}
-.story-card.coming .card-viz{height:160px}
-.card-viz canvas{position:absolute;inset:0;width:100%;height:100%}
-
-/* Card body */
-.card-body{padding:1.5rem;display:flex;flex-direction:column;gap:.75rem;flex:1}
-.story-card.featured .card-body{padding:2rem}
-.card-sector{
-  font-family:var(--f-m);font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;
-  display:flex;align-items:center;gap:.5rem;
-}
-.card-sector-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.card-sector.health{color:var(--burg)}.card-sector.health .card-sector-dot{background:var(--burg)}
-.card-sector.gender{color:var(--violet)}.card-sector.gender .card-sector-dot{background:var(--violet)}
-.card-sector.agriculture{color:var(--amber)}.card-sector.agriculture .card-sector-dot{background:var(--amber)}
-.card-sector.governance{color:var(--blue)}.card-sector.governance .card-sector-dot{background:var(--blue)}
-.card-sector.climate{color:var(--teal)}.card-sector.climate .card-sector-dot{background:var(--teal)}
-.card-sector.education{color:var(--amber)}.card-sector.education .card-sector-dot{background:var(--amber)}
-.card-hed{
-  font-family:var(--f-d);font-size:1.05rem;font-weight:800;line-height:1.1;
-  letter-spacing:-.025em;color:#F0EDE8;
-}
-.story-card.featured .card-hed{font-size:1.5rem}
-.card-dek{
-  font-family:var(--f-s);font-size:.88rem;font-style:italic;
-  color:rgba(240,237,232,.45);line-height:1.65;
-}
-.story-card.featured .card-dek{font-size:.98rem}
-.card-foot{
-  margin-top:auto;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.06);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.card-date{font-family:var(--f-m);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28)}
-.card-read{font-family:var(--f-m);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:.3rem}
-.card-read::after{content:"→";transition:transform .2s}
-.story-card:hover .card-read::after{transform:translateX(3px)}
-.card-coming-label{
-  font-family:var(--f-m);font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(255,255,255,.28);border:1px solid rgba(255,255,255,.1);
-  padding:.2rem .6rem;display:inline-block;
-}
-
-/* ── ABOUT STRIP ── */
-#about-strip{
-  border-top:1px solid rgba(255,255,255,.07);
-  padding:4rem 3.2rem;
-  display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;
-  background:rgba(255,255,255,.012);
-}
-.as-label{font-family:var(--f-m);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--burg);margin-bottom:1.25rem;display:flex;align-items:center;gap:.6rem}
-.as-label::before{content:"";width:18px;height:1px;background:var(--burg)}
-.as-title{font-family:var(--f-d);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;line-height:.95;letter-spacing:-.04em;color:#F0EDE8;margin-bottom:1rem}
-.as-title em{color:var(--burg);font-style:normal}
-.as-body{font-size:.95rem;font-weight:300;color:rgba(240,237,232,.5);line-height:1.85}
-.as-body strong{font-weight:500;color:rgba(240,237,232,.78)}
-.as-right{display:flex;flex-direction:column;gap:1.25rem}
-.as-step{display:grid;grid-template-columns:32px 1fr;gap:1rem;align-items:start}
-.as-step-num{font-family:var(--f-d);font-size:1.4rem;font-weight:800;color:rgba(255,255,255,.1);line-height:1}
-.as-step-text strong{display:block;font-size:.88rem;font-weight:600;color:rgba(255,255,255,.65);margin-bottom:.25rem}
-.as-step-text span{font-size:.85rem;font-weight:300;color:rgba(255,255,255,.38);line-height:1.6}
-
-/* ── FOOTER ── */
-#foot{
-  border-top:1px solid rgba(255,255,255,.06);
-  padding:2rem 3.2rem;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.foot-l{font-family:var(--f-m);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25)}
-.foot-r{display:flex;gap:1.5rem}
-.foot-link{font-family:var(--f-m);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;color:rgba(255,255,255,.32);transition:color .2s}
-.foot-link:hover{color:rgba(255,255,255,.65)}
-
-/* ── KEYFRAMES ── */
-@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-
-/* ── MOBILE ── */
-@media(max-width:768px){
-  html{font-size:15px}
-  #topbar{padding:0 1.2rem}
-  #hero{padding:0 1.2rem 4rem;min-height:90vh}
-  .hero-hed{font-size:clamp(2.8rem,11vw,4.5rem)}
-  .hero-dek{font-size:.95rem}
-  .hero-meta{gap:1.25rem}
-  #featured-hero{padding:2rem 1.2rem}
-  .featured-hero-inner{grid-template-columns:1fr;gap:2rem}
-  #filters{padding:1rem 1.2rem}
-  #stories{padding:2.5rem 1.2rem 4rem}
-  .stories-grid{grid-template-columns:1fr}
-  .story-card.featured,.story-card.secondary,.story-card.third,.story-card.coming{grid-column:span 1}
-  .story-card.featured .card-viz{height:200px}
-  #about-strip{grid-template-columns:1fr;padding:3rem 1.2rem;gap:2.5rem}
-  #foot{flex-direction:column;gap:1rem;padding:1.5rem 1.2rem;align-items:flex-start}
-  .foot-r{flex-wrap:wrap;gap:.75rem}
-}
-@media(min-width:769px) and (max-width:1100px){
-  .story-card.featured{grid-column:span 7}
-  .story-card.secondary{grid-column:span 5}
-  .story-card.third{grid-column:span 6}
-  .story-card.coming{grid-column:span 6}
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--accent:#2058A8;--burg:#C8203A;--amber:#D4823E;--teal:#1B7A65;--violet:#6B3FA0;--mint:#0F8B6E;--bg:#08080D;--bg2:#0D0D14;--bg3:#121219;--bg4:#1A1A24;--t1:#F0EDE8;--t2:#B0AEA9;--t3:#706E6A;--t4:#454340}
+html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-snap-type:y proximity}
+body{background:var(--bg);color:var(--t1);font-family:'Manrope',sans-serif;overflow-x:hidden}
+#prog{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--accent),var(--violet));z-index:10001}
+.nav{position:fixed;top:0;left:0;right:0;z-index:10000;display:flex;align-items:center;padding:0 2.5rem;height:48px;background:rgba(8,8,13,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.04)}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:.8rem;color:var(--t1);letter-spacing:.15em;text-transform:uppercase;text-decoration:none}
+.nav-sector{margin-left:auto;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);transition:color .4s}
+.macro{display:flex;gap:1.8rem;margin-left:2.5rem;overflow:hidden}
+.mi{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--t3);display:flex;align-items:center;gap:.35rem;white-space:nowrap}
+.mi b{color:var(--t1);font-weight:500}
+.mi.ld b{opacity:.3}
+.panel{width:100%;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;padding:48px 0 0;position:relative;scroll-snap-align:start}
+.ph{display:flex;align-items:center;gap:1rem;padding:2rem 3rem 0}
+.ph-pip{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.ph-name{font-family:'DM Mono',monospace;font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase}
+.ph-line{flex:1;height:1px;background:rgba(255,255,255,.06)}
+.ph-src{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--t4);letter-spacing:.06em}
+.pb{display:grid;padding:1.5rem 3rem 2rem;gap:1.5rem;align-content:start}
+.layout-hero{grid-template-columns:1fr;place-items:center;text-align:center;align-content:center;padding:0 3rem}
+.layout-4s2c{grid-template-columns:repeat(4,1fr);grid-template-rows:auto 1fr}
+.layout-4s2c .cw{grid-column:span 2}
+.sc{padding:1.5rem 1.75rem;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);border-radius:4px;transition:background .3s,border-color .3s}
+.sc:hover{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07)}
+.sc-eye{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:1rem}
+.sc-num{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,3.5vw,3.2rem);line-height:1;margin-bottom:.4rem}
+.sc-num .u{font-size:.45em;font-weight:400;color:var(--t2);margin-left:.12em;font-family:'DM Mono',monospace}
+.sc-desc{font-family:'Manrope',sans-serif;font-weight:300;font-size:.85rem;line-height:1.45;color:var(--t2)}
+.sc-src{font-family:'DM Mono',monospace;font-size:.5rem;color:var(--t4);margin-top:.6rem;letter-spacing:.04em;text-transform:uppercase}
+.sc-src.live::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:#1B7A65;margin-right:6px;vertical-align:middle}
+.cw{background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.04);border-radius:4px;padding:1.5rem 1.75rem;display:flex;flex-direction:column;min-height:0}
+.cw-t{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:#fff;margin-bottom:.2rem}
+.cw-s{font-family:'Manrope',sans-serif;font-weight:300;font-size:.75rem;color:var(--t3);margin-bottom:1rem}
+.cw-c{flex:1;min-height:0;position:relative}
+.cw-c canvas{width:100%!important;height:100%!important}
+.ss{padding:0 3rem 2rem}
+.scard{display:flex;align-items:center;gap:1.5rem;padding:1.25rem 1.75rem;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:4px;text-decoration:none;color:inherit;transition:all .3s}
+.scard:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)}
+.scard-pip{width:3px;height:44px;border-radius:2px;flex-shrink:0}
+.scard h4{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:#fff;margin-bottom:.25rem}
+.scard p{font-family:'Manrope',sans-serif;font-weight:300;font-size:.82rem;color:var(--t2);line-height:1.45}
+.scard-arr{margin-left:auto;font-size:1.2rem;color:var(--t3);flex-shrink:0;transition:transform .3s}
+.scard:hover .scard-arr{transform:translateX(4px);color:var(--t1)}
+.hero-sub{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem}
+.hero-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(3.5rem,8vw,6.5rem);line-height:.92;color:#fff;margin-bottom:1.5rem;letter-spacing:-.03em}
+.hero-h em{font-style:normal;color:var(--accent)}
+.hero-dek{font-family:'Lora',serif;font-style:italic;font-size:clamp(1.05rem,1.8vw,1.3rem);line-height:1.65;color:var(--t2);max-width:600px;margin-bottom:3rem}
+.hero-scroll{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--t4)}
+.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 60% 45% at 30% 50%,rgba(32,88,168,.07) 0%,transparent 60%),radial-gradient(ellipse 40% 35% at 75% 55%,rgba(107,63,160,.04) 0%,transparent 50%)}
+.hero-dots{position:absolute;inset:0;z-index:0;background-image:radial-gradient(circle 1px,rgba(255,255,255,.04) 0%,transparent 100%);background-size:36px 36px}
+.coming{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t4);padding:0 3rem 2rem}
+footer{min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;border-top:1px solid rgba(255,255,255,.04);padding:4rem 2rem;text-align:center;scroll-snap-align:start}
+.f-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:.22em;text-transform:uppercase;color:var(--t2);margin-bottom:.5rem}
+.f-sub{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t4);margin-bottom:1.5rem}
+.f-link{font-family:'Manrope',sans-serif;font-size:.85rem;color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(32,88,168,.3);padding-bottom:2px;transition:border-color .3s}
+.f-link:hover{border-color:var(--accent)}
+@media(max-width:1024px){.layout-4s2c{grid-template-columns:repeat(2,1fr)}.layout-4s2c .cw{grid-column:span 1}.macro{display:none}}
+@media(max-width:600px){.layout-4s2c{grid-template-columns:1fr}.layout-4s2c .cw{grid-column:span 1}.ph,.pb,.ss,.coming{padding-left:1.5rem;padding-right:1.5rem}.nav{padding:0 1.5rem}}
 </style>
 </head>
 <body>
+<div id="prog"></div>
+<nav class="nav"><a href="/" class="nav-logo">MWR Intelligence</a><div class="macro" id="macro"><div class="mi ld">GDP <b id="m-gdp">—</b></div><div class="mi ld">Mfg/GDP <b id="m-mfg">—</b></div><div class="mi ld">CPI <b id="m-cpi">—</b></div><div class="mi ld">FLFPR <b id="m-flfpr">—</b></div><div class="mi ld">U5 <b id="m-u5">—</b></div><div class="mi ld">CO₂ <b id="m-co2">—</b></div></div><div class="nav-sector" id="ns"></div></nav>
 
-<!-- TOP NAV -->
-<div id="topbar">
-  <a href="https://mwrcollective.com" class="tb-back">MWR Collective</a>
-  <div class="tb-brand">MWR <span>Intelligence</span></div>
-  <span class="tb-right">Research · Data · Narrative</span>
-</div>
+<section class="panel" data-sector=""><div></div><div class="pb layout-hero" style="position:relative"><div class="hero-bg"></div><div class="hero-dots"></div><div style="position:relative;z-index:1"><div class="hero-sub" id="hs">Data Intelligence for Policy &amp; Strategy</div><h1 class="hero-h" id="hh">India,<br><em>Measured.</em></h1><p class="hero-dek" id="hd">Six sectors. Live data from the World Bank. Every number sourced, every trend tracked. A living intelligence overview of the world's fastest-growing major economy.</p><div class="hero-scroll" id="hscr">↓ Scroll to explore</div></div></div><div></div></section>
 
-<!-- HERO -->
-<section id="hero">
-  <canvas id="hero-canvas"></canvas>
-  <div class="hero-inner">
-    <p class="hero-kicker">Intelligence from the field</p>
-    <h1 class="hero-hed">Data has<br><em>a story to tell.</em></h1>
-    <p class="hero-dek">Policy research and field data rendered as scrollable visual narratives — built to be read, argued with, and acted on. Not filed.</p>
-    <div class="hero-meta">
-      <div class="hero-stat">
-        <span class="hs-num" id="pub-count">0</span>
-        <span class="hs-label">Publications</span>
-      </div>
-      <div class="hero-div"></div>
-      <div class="hero-stat">
-        <span class="hs-num">6</span>
-        <span class="hs-label">Sectors</span>
-      </div>
-      <div class="hero-div"></div>
-      <div class="hero-stat">
-        <span class="hs-num">142</span>
-        <span class="hs-label">Data sources cited</span>
-      </div>
-      <span class="hero-scroll">Explore</span>
-    </div>
-  </div>
-</section>
+<section class="panel" data-sector="Economy & Governance" data-color="var(--accent)"><div class="ph"><div class="ph-pip" style="background:var(--accent)"></div><div class="ph-name" style="color:var(--accent)">Economy &amp; Governance</div><div class="ph-line"></div><div class="ph-src">Live · World Bank WDI</div></div><div class="pb layout-4s2c"><div class="sc"><div class="sc-eye">GDP Growth</div><div class="sc-num" style="color:var(--accent)" id="e-gdp"><span class="ld">—</span></div><div class="sc-desc">Annual real GDP growth rate</div><div class="sc-src live" id="e-gdp-src">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Manufacturing / GDP</div><div class="sc-num" style="color:var(--burg)" id="e-mfg"><span class="ld">—</span></div><div class="sc-desc">Manufacturing value added</div><div class="sc-src live" id="e-mfg-src">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Top 1% Income</div><div class="sc-num" style="color:var(--amber)">22.6<span class="u">%</span></div><div class="sc-desc">Pre-tax income, 2022-23</div><div class="sc-src">World Inequality Lab 2024</div></div><div class="sc"><div class="sc-eye">Agri Employment</div><div class="sc-num" id="e-agri"><span class="ld">—</span></div><div class="sc-desc">% of total (ILO est.)</div><div class="sc-src live">World Bank WDI</div></div><div class="cw"><div class="cw-t">GDP Composition</div><div class="cw-s">Agriculture · Industry · Services — % of GDP, 15 years</div><div class="cw-c"><canvas id="c-gdp"></canvas></div></div><div class="cw"><div class="cw-t">Inequality Timeline</div><div class="cw-s">Top 10% vs Bottom 50% income share</div><div class="cw-c"><canvas id="c-ineq"></canvas></div></div></div><div class="ss"><a class="scard" href="stories/economy-velvet-rope-v2.html"><div class="scard-pip" style="background:var(--accent)"></div><div><h4>The Velvet Rope Economy</h4><p>India's GDP grows at 6.5–7.6%. Its manufacturing share just hit a 64-year low. Who is this growth for?</p></div><span class="scard-arr">→</span></a></div></section>
 
-<!-- FEATURED STORY HERO — The Velvet Rope Economy -->
-<section id="featured-hero">
-  <div class="featured-hero-inner">
-    <div class="featured-hero-content">
-      <span class="sector-tag"><span class="card-sector-dot"></span>Economy &amp; Governance</span>
-      <h2>The <em>Velvet Rope</em> Economy</h2>
-      <p>India's GDP is growing at 6.5–7.6% depending on who is counting. Its manufacturing share of GDP just hit a 64-year low. The top 1% now captures a larger share of national income than at any point since 1922. Who, exactly, is this growth for?</p>
-      <a href="economy-indias-velvet-rope.html" class="featured-cta">
-        READ THE FULL STORY <span style="font-size:1.4rem;line-height:1">→</span>
-      </a>
-      <div style="margin-top:2rem;font-family:var(--f-m);font-size:.52rem;letter-spacing:.12em;color:rgba(255,255,255,.4);">
-        Published April 2026 • 12 min read • 22 sources
-      </div>
-    </div>
-    
-    <!-- Clean, elegant mini-bar viz (fixed the ugly problem) -->
-    <div class="featured-viz">
-      <div class="mini-bar-chart">
-        <div class="mbc-bar" style="height:35%; background:linear-gradient(#2058A8, #1B7A65);"></div>
-        <div class="mbc-bar" style="height:52%; background:linear-gradient(#D4823E, #C8203A);"></div>
-        <div class="mbc-bar" style="height:78%; background:linear-gradient(#2058A8, #6B3FA0);"></div>
-        <div class="mbc-bar" style="height:41%; background:linear-gradient(#1B7A65, #D4823E);"></div>
-        <div class="mbc-bar" style="height:91%; background:linear-gradient(#C8203A, #2058A8);"></div>
-      </div>
-    </div>
-  </div>
-</section>
+<section class="panel" data-sector="Public Health" data-color="var(--burg)"><div class="ph"><div class="ph-pip" style="background:var(--burg)"></div><div class="ph-name" style="color:var(--burg)">Public Health &amp; Nutrition</div><div class="ph-line"></div><div class="ph-src">Live · World Bank WDI</div></div><div class="pb layout-4s2c"><div class="sc"><div class="sc-eye">Under-5 Mortality</div><div class="sc-num" style="color:var(--burg)" id="h-u5"><span class="ld">—</span></div><div class="sc-desc">Per 1,000 live births</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Maternal Mortality</div><div class="sc-num" id="h-mmr"><span class="ld">—</span></div><div class="sc-desc">Per 100,000 live births</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Stunting</div><div class="sc-num" style="color:var(--amber)" id="h-stunt"><span class="ld">—</span></div><div class="sc-desc">Children under 5</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Health Spending</div><div class="sc-num" id="h-exp"><span class="ld">—</span></div><div class="sc-desc">% of GDP</div><div class="sc-src live">World Bank WDI</div></div><div class="cw"><div class="cw-t">Under-5 Mortality Trend</div><div class="cw-s">Per 1,000 live births — 15-year series</div><div class="cw-c"><canvas id="c-u5"></canvas></div></div><div class="cw"><div class="cw-t">Health Expenditure</div><div class="cw-s">Current health expenditure, % of GDP</div><div class="cw-c"><canvas id="c-hexp"></canvas></div></div></div><div class="coming">Stories coming soon</div></section>
 
-<!-- FILTERS -->
-<div id="filters">
-  <button class="filter-btn active" data-filter="all">All</button>
-  <button class="filter-btn" data-filter="health">Public Health</button>
-  <button class="filter-btn" data-filter="gender">Gender</button>
-  <button class="filter-btn" data-filter="agriculture">Agriculture</button>
-  <button class="filter-btn" data-filter="governance">Governance</button>
-  <button class="filter-btn" data-filter="climate">Climate</button>
-  <button class="filter-btn" data-filter="education">Education</button>
-</div>
+<section class="panel" data-sector="Gender & Equity" data-color="var(--violet)"><div class="ph"><div class="ph-pip" style="background:var(--violet)"></div><div class="ph-name" style="color:var(--violet)">Gender &amp; Social Norms</div><div class="ph-line"></div><div class="ph-src">Live · World Bank WDI</div></div><div class="pb layout-4s2c"><div class="sc"><div class="sc-eye">Female LFPR</div><div class="sc-num" style="color:var(--violet)" id="g-flfpr"><span class="ld">—</span></div><div class="sc-desc">ILO modelled, 15+</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Male LFPR</div><div class="sc-num" id="g-mlfpr"><span class="ld">—</span></div><div class="sc-desc">ILO modelled, 15+</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Female Labour Income</div><div class="sc-num" style="color:var(--burg)">15.7<span class="u">%</span></div><div class="sc-desc">Women's share — unchanged in a decade</div><div class="sc-src">World Inequality Report 2026</div></div><div class="sc"><div class="sc-eye">Life Expectancy</div><div class="sc-num" id="g-life"><span class="ld">—</span></div><div class="sc-desc">At birth, years</div><div class="sc-src live">World Bank WDI</div></div><div class="cw"><div class="cw-t">Female vs Male LFPR</div><div class="cw-s">Labour force participation — the persistent gap</div><div class="cw-c"><canvas id="c-lfpr"></canvas></div></div><div class="cw"><div class="cw-t">Life Expectancy</div><div class="cw-s">At birth, years</div><div class="cw-c"><canvas id="c-life"></canvas></div></div></div><div class="coming">Stories coming soon</div></section>
 
-<!-- STORIES GRID -->
-<section id="stories">
-  <div class="stories-header">
-    <span class="stories-title">Latest Intelligence</span>
-    <span class="stories-count" id="visible-count">— publications</span>
-  </div>
-  <div class="stories-grid" id="stories-grid">
+<section class="panel" data-sector="Agriculture" data-color="var(--teal)"><div class="ph"><div class="ph-pip" style="background:var(--teal)"></div><div class="ph-name" style="color:var(--teal)">Agriculture &amp; Food Systems</div><div class="ph-line"></div><div class="ph-src">Live · World Bank WDI</div></div><div class="pb layout-4s2c"><div class="sc"><div class="sc-eye">Agriculture / GDP</div><div class="sc-num" style="color:var(--teal)" id="a-gdp"><span class="ld">—</span></div><div class="sc-desc">Value added, % of GDP</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Agri Employment</div><div class="sc-num" id="a-emp"><span class="ld">—</span></div><div class="sc-desc">% of total (ILO est.)</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Trade / GDP</div><div class="sc-num" id="a-trade"><span class="ld">—</span></div><div class="sc-desc">Total trade, % of GDP</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">GDP Per Capita</div><div class="sc-num" id="a-pcap"><span class="ld">—</span></div><div class="sc-desc">PPP, current int'l $</div><div class="sc-src live">World Bank WDI</div></div><div class="cw"><div class="cw-t">Agriculture Share of GDP</div><div class="cw-s">Declining — but still the biggest employer</div><div class="cw-c"><canvas id="c-agri"></canvas></div></div><div class="cw"><div class="cw-t">Agricultural Employment</div><div class="cw-s">% of total employment (ILO)</div><div class="cw-c"><canvas id="c-agemp"></canvas></div></div></div><div class="coming">Stories coming soon</div></section>
 
-    <!-- LIVE FEATURED STORY CARD -->
-    <a class="story-card featured governance" href="economy-indias-velvet-rope.html">
-      <div class="card-viz">
-        <div class="mini-bar-chart">
-          <div class="mbc-bar" style="height:35%; background:linear-gradient(#2058A8, #1B7A65);"></div>
-          <div class="mbc-bar" style="height:52%; background:linear-gradient(#D4823E, #C8203A);"></div>
-          <div class="mbc-bar" style="height:78%; background:linear-gradient(#2058A8, #6B3FA0);"></div>
-          <div class="mbc-bar" style="height:41%; background:linear-gradient(#1B7A65, #D4823E);"></div>
-          <div class="mbc-bar" style="height:91%; background:linear-gradient(#C8203A, #2058A8);"></div>
-        </div>
-      </div>
-      <div class="card-body">
-        <span class="card-sector governance"><span class="card-sector-dot"></span>Economy &amp; Governance</span>
-        <div class="card-hed">The <em>Velvet Rope</em> Economy</div>
-        <div class="card-dek">India's GDP is growing at 6.5–7.6%. Manufacturing share just hit a 64-year low. The top 1% now captures more income than at any point since 1922. Who exactly is this growth for?</div>
-        <div class="card-foot">
-          <span class="card-date">APRIL 2026</span>
-          <span class="card-read">Read the story</span>
-        </div>
-      </div>
-    </a>
+<section class="panel" data-sector="Education" data-color="var(--amber)"><div class="ph"><div class="ph-pip" style="background:var(--amber)"></div><div class="ph-name" style="color:var(--amber)">Education &amp; Skilling</div><div class="ph-line"></div><div class="ph-src">Live · World Bank WDI</div></div><div class="pb layout-4s2c"><div class="sc"><div class="sc-eye">Secondary GER</div><div class="sc-num" style="color:var(--amber)" id="ed-sec"><span class="ld">—</span></div><div class="sc-desc">Gross enrollment ratio</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Tertiary GER</div><div class="sc-num" id="ed-ter"><span class="ld">—</span></div><div class="sc-desc">Gross enrollment ratio</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Education Spending</div><div class="sc-num" id="ed-exp"><span class="ld">—</span></div><div class="sc-desc">Govt expenditure, % GDP</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Youth Unemployment</div><div class="sc-num" style="color:var(--burg)" id="ed-yur"><span class="ld">—</span></div><div class="sc-desc">Ages 15-24, ILO est.</div><div class="sc-src live">World Bank WDI</div></div><div class="cw"><div class="cw-t">Enrollment Trends</div><div class="cw-s">Secondary &amp; tertiary gross enrollment ratio</div><div class="cw-c"><canvas id="c-enr"></canvas></div></div><div class="cw"><div class="cw-t">Youth Unemployment</div><div class="cw-s">% of youth labour force, 15-24</div><div class="cw-c"><canvas id="c-yur"></canvas></div></div></div><div class="coming">Stories coming soon</div></section>
 
-    <!-- Original coming-soon cards (unchanged) -->
-    <a class="story-card coming health" href="#">
-      <div class="card-viz"><span class="card-viz-placeholder">Signal in progress</span></div>
-      <div class="card-body">
-        <span class="card-sector health"><span class="card-sector-dot"></span>Public Health &amp; Nutrition</span>
-        <div class="card-hed">What NFHS-5 says about maternal nutrition that the headlines missed</div>
-        <div class="card-dek">District-level disaggregation reveals patterns invisible at the state level — and they complicate the progress narrative.</div>
-        <div class="card-foot"><span class="card-coming-label">Coming soon</span></div>
-      </div>
-    </a>
+<section class="panel" data-sector="Climate" data-color="var(--mint)"><div class="ph"><div class="ph-pip" style="background:var(--mint)"></div><div class="ph-name" style="color:var(--mint)">Climate &amp; Environment</div><div class="ph-line"></div><div class="ph-src">Live · World Bank WDI</div></div><div class="pb layout-4s2c"><div class="sc"><div class="sc-eye">CO₂ Per Capita</div><div class="sc-num" style="color:var(--mint)" id="cl-co2"><span class="ld">—</span></div><div class="sc-desc">Metric tons</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Renewable Energy</div><div class="sc-num" id="cl-ren"><span class="ld">—</span></div><div class="sc-desc">% of final consumption</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Forest Area</div><div class="sc-num" id="cl-for"><span class="ld">—</span></div><div class="sc-desc">% of land area</div><div class="sc-src live">World Bank WDI</div></div><div class="sc"><div class="sc-eye">Electricity Access</div><div class="sc-num" id="cl-elec"><span class="ld">—</span></div><div class="sc-desc">% of population</div><div class="sc-src live">World Bank WDI</div></div><div class="cw"><div class="cw-t">CO₂ Emissions</div><div class="cw-s">Metric tons per capita — rising but far below global avg</div><div class="cw-c"><canvas id="c-co2"></canvas></div></div><div class="cw"><div class="cw-t">Renewable Energy</div><div class="cw-s">% of total final energy consumption</div><div class="cw-c"><canvas id="c-ren"></canvas></div></div></div><div class="coming">Stories coming soon</div></section>
 
-    <a class="story-card coming gender" href="#">
-      <div class="card-viz"><span class="card-viz-placeholder">Signal in progress</span></div>
-      <div class="card-body">
-        <span class="card-sector gender"><span class="card-sector-dot"></span>Gender &amp; Social Norms</span>
-        <div class="card-hed">The gap between women's decision-making indicators and actual autonomy</div>
-        <div class="card-dek">Survey questions measure reported behaviour. They rarely capture the structures behind it.</div>
-        <div class="card-foot"><span class="card-coming-label">Coming soon</span></div>
-      </div>
-    </a>
-
-    <a class="story-card coming agriculture" href="#">
-      <div class="card-viz"><span class="card-viz-placeholder">Signal in progress</span></div>
-      <div class="card-body">
-        <span class="card-sector agriculture"><span class="card-sector-dot"></span>Agriculture &amp; Food Systems</span>
-        <div class="card-hed">Groundwater depletion and agrarian stress — a district-level mapping</div>
-        <div class="card-dek">The well runs dry before the policy catches up. A spatial analysis of India's irrigation paradox.</div>
-        <div class="card-foot"><span class="card-coming-label">Coming soon</span></div>
-      </div>
-    </a>
-
-    <a class="story-card coming governance" href="#">
-      <div class="card-viz"><span class="card-viz-placeholder">Signal in progress</span></div>
-      <div class="card-body">
-        <span class="card-sector governance"><span class="card-sector-dot"></span>Governance &amp; Policy</span>
-        <div class="card-hed">MGNREGA as climate infrastructure — evidence from four states</div>
-        <div class="card-dek">A programme designed for employment is quietly becoming a resilience mechanism. The data is ahead of the narrative.</div>
-        <div class="card-foot"><span class="card-coming-label">Coming soon</span></div>
-      </div>
-    </a>
-
-    <a class="story-card coming climate" href="#">
-      <div class="card-viz"><span class="card-viz-placeholder">Signal in progress</span></div>
-      <div class="card-body">
-        <span class="card-sector climate"><span class="card-sector-dot"></span>Sustainability &amp; Climate</span>
-        <div class="card-hed">Coal belt transitions and the missing livelihoods data</div>
-        <div class="card-dek">India's energy transition has a human geography problem. The communities most affected are least visible in the official numbers.</div>
-        <div class="card-foot"><span class="card-coming-label">Coming soon</span></div>
-      </div>
-    </a>
-
-    <a class="story-card coming education" href="#">
-      <div class="card-viz"><span class="card-viz-placeholder">Signal in progress</span></div>
-      <div class="card-body">
-        <span class="card-sector education"><span class="card-sector-dot"></span>Education &amp; Skilling</span>
-        <div class="card-hed">What learning loss actually looks like in district-level ASER data</div>
-        <div class="card-dek">The national average conceals a distribution problem. Recovery has not been uniform — and the shape of the gap matters.</div>
-        <div class="card-foot"><span class="card-coming-label">Coming soon</span></div>
-      </div>
-    </a>
-
-  </div>
-</section>
-
-<!-- ABOUT STRIP -->
-<section id="about-strip">
-  <div>
-    <p class="as-label">What is this</p>
-    <h2 class="as-title">Research that<br><em>moves.</em></h2>
-    <p class="as-body">Each piece starts with a signal — a dataset release, a policy moment, a trend in the field. AI-assisted research identifies the most relevant analyses, papers, and data. <strong>Our team then builds the story: honest, sourced, visual.</strong> Designed to be read once and referenced many times.</p>
-  </div>
-  <div class="as-right">
-    <div class="as-step">
-      <span class="as-step-num">01</span>
-      <div class="as-step-text"><strong>Signal</strong><span>A dataset, a trend, a policy moment worth examining.</span></div>
-    </div>
-    <div class="as-step">
-      <span class="as-step-num">02</span>
-      <div class="as-step-text"><strong>Research</strong><span>AI-assisted curation of papers, analyses, and primary data sources.</span></div>
-    </div>
-    <div class="as-step">
-      <span class="as-step-num">03</span>
-      <div class="as-step-text"><strong>Story</strong><span>A visual, data-driven narrative with full sourcing and methodology.</span></div>
-    </div>
-    <div class="as-step">
-      <span class="as-step-num">04</span>
-      <div class="as-step-text"><strong>Reference</strong><span>A complete bibliography and data appendix. Rigour, not decoration.</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<div id="foot">
-  <span class="foot-l">© 2026 Mindworld Research Private Limited · MWR Intelligence</span>
-  <div class="foot-r">
-    <a href="https://mwrcollective.com" class="foot-link">MWR Collective</a>
-    <a href="https://mwrcollective.com/about/" class="foot-link">About</a>
-    <a href="https://mwrcollective.com/contact/" class="foot-link">Work With Us</a>
-    <a href="https://www.linkedin.com/company/mwrcollective" target="_blank" rel="noopener noreferrer" class="foot-link">LinkedIn</a>
-  </div>
-</div>
+<footer><div class="f-logo">MWR Intelligence</div><div class="f-sub">A publication of MWR Collective — New Delhi</div><a class="f-link" href="stories/economy-velvet-rope-v2.html">Read our first story: The Velvet Rope Economy →</a></footer>
 
 <script>
-// ── HERO CANVAS (unchanged)
-(function(){
-  var c=document.getElementById('hero-canvas');
-  if(!c)return;
-  var ctx=c.getContext('2d'),W,H,t=0;
-  var particles=[];
-  function resize(){
-    W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;
-    particles=[];
-    var n=Math.floor((W*H)/8000);
-    for(var i=0;i<n;i++){
-      particles.push({
-        x:Math.random()*W,y:Math.random()*H,
-        vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,
-        r:Math.random()*1.2+.3,
-        a:Math.random()*.4+.05,
-        col:['#C8203A','#D4823E','#1B7A65','#2058A8','#6B3FA0','#F0EDE8'][Math.floor(Math.random()*6)]
-      });
-    }
-  }
-  resize();window.addEventListener('resize',resize);
-  var ORBS=[
-    {c:'#C8203A',xc:.35,yc:.55,xa:.22,ya:.18,xf:.007,yf:.009,xp:0,yp:0,r:420,a:.65},
-    {c:'#6B3FA0',xc:.72,yc:.35,xa:.18,ya:.22,xf:.009,yf:.006,xp:2.1,yp:1.3,r:380,a:.55},
-    {c:'#1B7A65',xc:.55,yc:.7,xa:.20,ya:.15,xf:.005,yf:.011,xp:1.4,yp:3.2,r:360,a:.45},
-    {c:'#D4823E',xc:.2,yc:.25,xa:.15,ya:.20,xf:.011,yf:.007,xp:3.0,yp:0.8,r:300,a:.38},
-  ];
-  function h(hex){return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]}
-  var ORGBS=ORBS.map(function(o){return h(o.c)});
-  function draw(){
-    ctx.fillStyle='rgba(10,10,15,.92)';ctx.fillRect(0,0,W,H);
-    ctx.globalCompositeOperation='screen';
-    ORBS.forEach(function(orb,i){
-      var x=(orb.xc+Math.sin(t*orb.xf+orb.xp)*orb.xa)*W;
-      var y=(orb.yc+Math.cos(t*orb.yf+orb.yp)*orb.ya)*H;
-      var r=orb.r*(0.85+Math.sin(t*orb.xf*2+i)*.15);
-      var a=orb.a*(0.8+Math.sin(t*orb.yf*1.5+i*1.3)*.2);
-      var g=ctx.createRadialGradient(x,y,0,x,y,r);
-      var rgb=ORGBS[i];
-      g.addColorStop(0,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+','+a+')');
-      g.addColorStop(.5,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+','+(a*.3)+')');
-      g.addColorStop(1,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0)');
-      ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-    });
-    ctx.globalCompositeOperation='screen';
-    particles.forEach(function(p){
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
-      if(p.y<0)p.y=H;if(p.y>H)p.y=0;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=p.col;ctx.globalAlpha=p.a;ctx.fill();
-    });
-    ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
-    t+=.004;requestAnimationFrame(draw);
-  }
-  draw();
-})();
-
-// ── FILTER ──
-(function(){
-  var btns=document.querySelectorAll('.filter-btn');
-  var cards=document.querySelectorAll('.story-card');
-  btns.forEach(function(btn){
-    btn.addEventListener('click',function(){
-      btns.forEach(function(b){b.classList.remove('active')});
-      btn.classList.add('active');
-      var filter=btn.dataset.filter;
-      var count=0;
-      cards.forEach(function(card){
-        var show=filter==='all'||card.classList.contains(filter);
-        card.style.display=show?'flex':'none';
-        if(show)count++;
-      });
-      document.getElementById('visible-count').textContent=count+' publication'+(count!==1?'s':'');
-    });
+gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.create({trigger:document.body,start:'top top',end:'bottom bottom',onUpdate:s=>{document.getElementById('prog').style.width=(s.progress*100)+'%'}});
+document.querySelectorAll('.panel[data-sector]').forEach(p=>{
+  ScrollTrigger.create({trigger:p,start:'top 60%',end:'bottom 40%',
+    onEnter:()=>{const el=document.getElementById('ns');el.textContent=p.dataset.sector;el.style.color=p.dataset.color||'var(--t3)'},
+    onEnterBack:()=>{const el=document.getElementById('ns');el.textContent=p.dataset.sector;el.style.color=p.dataset.color||'var(--t3)'}
   });
-  document.getElementById('visible-count').textContent=cards.length+' publications';
-})();
+});
+gsap.from('#hs',{opacity:0,y:20,duration:1,delay:.2});
+gsap.from('#hh',{opacity:0,y:50,duration:1.3,delay:.4,ease:'power3.out'});
+gsap.from('#hd',{opacity:0,y:25,duration:1,delay:.7});
+gsap.from('#hscr',{opacity:0,duration:1,delay:1.1});
+document.querySelectorAll('.panel[data-sector]').forEach(p=>{
+  const h=p.querySelector('.ph');if(h)gsap.from(h,{opacity:0,x:-30,duration:.8,scrollTrigger:{trigger:p,start:'top 80%',once:true}});
+  p.querySelectorAll('.sc').forEach((s,i)=>{gsap.from(s,{opacity:0,y:30,duration:.7,delay:i*.07,scrollTrigger:{trigger:s,start:'top 92%',once:true}})});
+  p.querySelectorAll('.cw').forEach((c,i)=>{gsap.from(c,{opacity:0,y:25,duration:.8,delay:i*.1,scrollTrigger:{trigger:c,start:'top 88%',once:true}})});
+  const sc=p.querySelector('.scard');if(sc)gsap.from(sc,{opacity:0,x:-20,duration:.7,scrollTrigger:{trigger:sc,start:'top 90%',once:true}});
+});
 
-// ── COUNT UP PUB ──
-(function(){
-  var el=document.getElementById('pub-count');
-  setTimeout(function(){
-    var start=performance.now();
-    function run(now){
-      var p=Math.min((now-start)/800,1);
-      el.textContent=Math.round(p*1);  
-      if(p<1)requestAnimationFrame(run);
-    }
-    requestAnimationFrame(run);
-  },900);
-})();
+const WB='https://api.worldbank.org/v2/country/IND/indicator/';
+async function wb(c,n=15){try{const r=await fetch(WB+c+'?format=json&mrnev='+n+'&per_page='+n);const j=await r.json();return j[1].filter(d=>d.value!==null).map(d=>({y:d.date,v:d.value})).reverse()}catch(e){return null}}
+function L(d){return d&&d.length?d[d.length-1]:null}
+function F(v,dec){return v!=null?v.toFixed(dec):'—'}
+function fill(id,val,unit,dec){const el=document.getElementById(id);if(!el||val==null)return;el.innerHTML=F(val,dec)+'<span class="u">'+unit+'</span>';el.querySelector('.ld')&&el.querySelector('.ld').classList.remove('ld')}
+function fillM(id,val,unit,dec){const el=document.getElementById(id);if(!el||val==null)return;el.textContent=F(val,dec)+unit;el.closest('.mi').classList.remove('ld')}
 
-// ── REVEAL ──
-(function(){
-  var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('vis');});
-  },{threshold:.06,rootMargin:'0px 0px -30px 0px'});
-  document.querySelectorAll('.story-card,.rv').forEach(function(el,i){
-    el.style.transitionDelay=(i*.06)+'s';
-    el.style.transition='opacity .6s cubic-bezier(0.22,1,0.36,1), transform .6s cubic-bezier(0.22,1,0.36,1)';
-    io.observe(el);
-  });
-})();
+Chart.defaults.color='#706E6A';Chart.defaults.borderColor='rgba(255,255,255,.04)';Chart.defaults.font.family="'Manrope',sans-serif";Chart.defaults.font.size=11;Chart.defaults.font.weight=300;
+const TT={backgroundColor:'#1A1A24',titleFont:{family:"'DM Mono',monospace",size:10},bodyFont:{family:"'Manrope',sans-serif",size:12},borderColor:'rgba(255,255,255,.08)',borderWidth:1,padding:12,cornerRadius:3};
+function ds(l,d,c,f){return{label:l,data:d,borderColor:c,backgroundColor:f!==false?c.replace(')',',0.08)').replace('rgb','rgba'):'transparent',borderWidth:2.5,pointRadius:3,pointBackgroundColor:c,pointBorderColor:'#08080D',pointBorderWidth:2,tension:.35,fill:f!==false}}
+function mk(id,labels,datasets,u){const el=document.getElementById(id);if(!el)return;return new Chart(el,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{padding:18,usePointStyle:true,pointStyleWidth:14,font:{family:"'DM Mono',monospace",size:9}}},tooltip:TT},scales:{y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{font:{family:"'DM Mono',monospace",size:10},callback:function(v){return v+(u||'%')}}},x:{grid:{display:false},ticks:{font:{family:"'DM Mono',monospace",size:10}}}}}})}
 
-// ── PAGE TRANSITIONS ──
-(function(){
-  document.body.style.opacity='0';
-  window.addEventListener('load',function(){document.body.style.opacity='';});
-  document.addEventListener('click',function(e){
-    var a=e.target.closest('a');
-    if(!a)return;
-    var href=a.getAttribute('href');
-    if(!href||href==='#'||href.indexOf('http')===0||href.indexOf('//')===0)return;
-    if(href===window.location.pathname)return;
-    e.preventDefault();
-    document.body.style.opacity='0';
-    setTimeout(function(){window.location.href=href;},180);
-  });
+(async()=>{
+const[gdpG,mfgG,agriG,svcG,indG,cpiD,fdiD,flfprD,mlfprD,yurD,agriE,u5D,mmrD,stuntD,hexpD,lifeD,secD,terD,eduExpD,co2D,renD,forD,elecD,pcapD,tradeD]=await Promise.all([wb('NY.GDP.MKTP.KD.ZG'),wb('NV.IND.MANF.ZS'),wb('NV.AGR.TOTL.ZS'),wb('NV.SRV.TOTL.ZS'),wb('NV.IND.TOTL.ZS'),wb('FP.CPI.TOTL.ZG'),wb('BX.KLT.DINV.CD.WD'),wb('SL.TLF.CACT.FE.ZS'),wb('SL.TLF.CACT.MA.ZS'),wb('SL.UEM.1524.ZS'),wb('SL.AGR.EMPL.ZS'),wb('SH.DYN.MORT'),wb('SH.STA.MMRT'),wb('SH.STA.STNT.ZS',8),wb('SH.XPD.CHEX.GD.ZS'),wb('SP.DYN.LE00.IN'),wb('SE.SEC.ENRR'),wb('SE.TER.ENRR'),wb('SE.XPD.TOTL.GD.ZS'),wb('EN.ATM.CO2E.PC'),wb('EG.FEC.RNEW.ZS'),wb('AG.LND.FRST.ZS'),wb('EG.ELC.ACCS.ZS'),wb('NY.GDP.PCAP.PP.CD'),wb('NE.TRD.GNFS.ZS')]);
+
+fillM('m-gdp',L(gdpG)?.v,'%',1);fillM('m-mfg',L(mfgG)?.v,'%',1);fillM('m-cpi',L(cpiD)?.v,'%',1);fillM('m-flfpr',L(flfprD)?.v,'%',1);fillM('m-u5',L(u5D)?.v,'',1);fillM('m-co2',L(co2D)?.v,'t',2);
+
+const lg=L(gdpG);fill('e-gdp',lg?.v,'%',1);if(lg)document.getElementById('e-gdp-src').textContent='World Bank WDI '+lg.y;
+const lm=L(mfgG);fill('e-mfg',lm?.v,'%',2);if(lm)document.getElementById('e-mfg-src').textContent='World Bank WDI '+lm.y;
+fill('e-agri',L(agriE)?.v,'%',1);
+if(agriG&&svcG&&indG)mk('c-gdp',agriG.map(d=>d.y),[ds('Services',svcG.map(d=>d.v),'#6B3FA0'),ds('Industry',indG.map(d=>d.v),'#2058A8'),ds('Agriculture',agriG.map(d=>d.v),'#1B7A65')]);
+mk('c-ineq',['1980','1985','1990','1995','2000','2005','2010','2015','2020','2023'],[ds('Top 10%',[30,31,33,35,40,47,52,56,57,58],'#D4823E'),ds('Bottom 50%',[24,23,22,21,20,17,16,15,15,15],'#2058A8')]);
+
+fill('h-u5',L(u5D)?.v,'',1);fill('h-mmr',L(mmrD)?.v,'',0);fill('h-stunt',L(stuntD)?.v,'%',1);fill('h-exp',L(hexpD)?.v,'%',1);
+if(u5D)mk('c-u5',u5D.map(d=>d.y),[ds('Under-5 mortality',u5D.map(d=>d.v),'#C8203A')],'');
+if(hexpD)mk('c-hexp',hexpD.map(d=>d.y),[ds('Health exp % GDP',hexpD.map(d=>d.v),'#C8203A')]);
+
+fill('g-flfpr',L(flfprD)?.v,'%',1);fill('g-mlfpr',L(mlfprD)?.v,'%',1);fill('g-life',L(lifeD)?.v,' yr',1);
+if(flfprD&&mlfprD)mk('c-lfpr',flfprD.map(d=>d.y),[ds('Male LFPR',mlfprD.map(d=>d.v),'#2058A8'),ds('Female LFPR',flfprD.map(d=>d.v),'#6B3FA0')]);
+if(lifeD)mk('c-life',lifeD.map(d=>d.y),[ds('Life expectancy',lifeD.map(d=>d.v),'#6B3FA0',false)],' yr');
+
+fill('a-gdp',L(agriG)?.v,'%',1);fill('a-emp',L(agriE)?.v,'%',1);fill('a-trade',L(tradeD)?.v,'%',1);
+if(pcapD)fill('a-pcap',L(pcapD)?.v,'$',0);
+if(agriG)mk('c-agri',agriG.map(d=>d.y),[ds('Agriculture % GDP',agriG.map(d=>d.v),'#1B7A65')]);
+if(agriE)mk('c-agemp',agriE.map(d=>d.y),[ds('Agri employment %',agriE.map(d=>d.v),'#1B7A65')]);
+
+fill('ed-sec',L(secD)?.v,'%',1);fill('ed-ter',L(terD)?.v,'%',1);fill('ed-exp',L(eduExpD)?.v,'%',1);fill('ed-yur',L(yurD)?.v,'%',1);
+if(secD&&terD)mk('c-enr',secD.map(d=>d.y),[ds('Secondary GER',secD.map(d=>d.v),'#D4823E'),ds('Tertiary GER',terD.map(d=>d.v),'#2058A8')]);
+if(yurD)mk('c-yur',yurD.map(d=>d.y),[ds('Youth unemployment',yurD.map(d=>d.v),'#C8203A')]);
+
+fill('cl-co2',L(co2D)?.v,' t',2);fill('cl-ren',L(renD)?.v,'%',1);fill('cl-for',L(forD)?.v,'%',1);fill('cl-elec',L(elecD)?.v,'%',1);
+if(co2D)mk('c-co2',co2D.map(d=>d.y),[ds('CO₂/capita',co2D.map(d=>d.v),'#0F8B6E')],'t');
+if(renD)mk('c-ren',renD.map(d=>d.y),[ds('Renewable %',renD.map(d=>d.v),'#0F8B6E')]);
 })();
 </script>
 </body>
