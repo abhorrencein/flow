@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Velvet Rope Economy — MWR Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Manrope:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#2058A8;--burg:#C8203A;--amber:#D4823E;--teal:#1B7A65;--violet:#6B3FA0;
+  --bg:#08080D;--bg2:#0D0D14;--bg3:#121219;--bg4:#1A1A24;
+  --t1:#F0EDE8;--t2:#A09E99;--t3:#605E5A;--t4:#3A3936;
+  --glow:rgba(32,88,168,0.08);
+}
+html{font-size:16px;scroll-behavior:auto;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--t1);font-family:'Lora',serif;overflow-x:hidden}
+
+/* ═══ GLOBAL GRID OVERLAY (subtle) ═══ */
+body::before{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent,transparent calc(100%/12 - 1px),rgba(255,255,255,0.02) calc(100%/12 - 1px),rgba(255,255,255,0.02) calc(100%/12));
+  opacity:0.4;
+}
+
+/* ═══ SCANLINE TEXTURE ═══ */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+}
+
+/* ═══ PROGRESS ═══ */
+#progress{position:fixed;top:0;left:0;height:2px;width:0%;background:var(--accent);z-index:10000;mix-blend-mode:screen}
+
+/* ═══ TOPBAR ═══ */
+.topbar{
+  position:fixed;top:2px;left:0;right:0;z-index:9990;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0.6rem 2rem;
+  font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--t3);
+  mix-blend-mode:difference;
+}
+.topbar a{color:inherit;text-decoration:none}
+.topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;color:var(--t2);letter-spacing:0.18em}
+
+/* ═══ HERO — FULL VIEWPORT ═══ */
+.hero{
+  position:relative;width:100%;height:300vh;
+}
+.hero-sticky{
+  position:sticky;top:0;width:100%;height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+
+/* animated mesh background */
+.hero-mesh{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 40%, rgba(32,88,168,0.1) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 75% 55%, rgba(107,63,160,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 90%, rgba(200,32,58,0.04) 0%, transparent 50%);
+}
+
+/* grid of pulsing dots */
+.dot-grid{
+  position:absolute;inset:0;
+  background-image:radial-gradient(circle 1px at center,rgba(255,255,255,0.08) 0%,transparent 100%);
+  background-size:48px 48px;
+  animation:dotPulse 6s ease-in-out infinite alternate;
+}
+@keyframes dotPulse{0%{opacity:0.3}100%{opacity:0.7}}
+
+.hero-content{position:relative;z-index:2;max-width:1100px;padding:0 3rem;width:100%}
+
+.hero-sector{
+  font-family:'DM Mono',monospace;font-size:0.55rem;font-weight:500;
+  letter-spacing:0.3em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:2rem;opacity:0;
+  display:flex;align-items:center;gap:1rem;
+}
+.hero-sector::before{content:'';width:40px;height:1px;background:var(--accent)}
+.hero-sector::after{content:'';flex:1;height:1px;background:rgba(32,88,168,0.2)}
+
+.hero-hed{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(3.2rem,8vw,7rem);line-height:0.95;
+  color:#fff;margin-bottom:1.5rem;opacity:0;
+  letter-spacing:-0.03em;
+}
+.hero-hed em{font-style:normal;color:var(--accent);display:inline-block}
+
+.hero-dek{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:clamp(1rem,1.8vw,1.3rem);line-height:1.65;
+  color:var(--t2);max-width:640px;margin-bottom:3rem;opacity:0;
+}
+
+.hero-meta{
+  display:flex;gap:2.5rem;flex-wrap:wrap;
+  font-family:'DM Mono',monospace;font-size:0.6rem;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--t3);opacity:0;
+}
+.hero-meta span{display:flex;align-items:center;gap:0.5rem}
+.meta-pip{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pipPulse 2s ease infinite}
+@keyframes pipPulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ═══ FULL-BLEED DASHBOARD PANEL ═══ */
+.dashboard{
+  position:relative;width:100%;min-height:100vh;
+  background:var(--bg2);
+  border-top:1px solid rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  overflow:hidden;
+}
+
+.dash-grid{
+  display:grid;grid-template-columns:repeat(12,1fr);
+  width:100%;min-height:100vh;
+}
+
+/* ── Stat Tiles ── */
+.stat-tile{
+  border:1px solid rgba(255,255,255,0.04);
+  padding:2.5rem 2rem;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  position:relative;overflow:hidden;
+  transition:background 0.4s;
+}
+.stat-tile:hover{background:rgba(255,255,255,0.02)}
+
+.stat-tile::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0;transition:opacity 0.6s;
+}
+.stat-tile:hover::before{opacity:1}
+
+.stat-eyebrow{
+  font-family:'DM Mono',monospace;font-size:0.5rem;
+  letter-spacing:0.2em;text-transform:uppercase;color:var(--t3);
+  margin-bottom:auto;padding-bottom:2rem;
+}
+
+.stat-number{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(2.2rem,4vw,3.6rem);color:#fff;
+  line-height:1;margin-bottom:0.5rem;
+}
+.stat-number .unit{font-size:0.5em;color:var(--t2);margin-left:0.15em}
+.stat-number.accent{color:var(--accent)}
+.stat-number.burg{color:var(--burg)}
+.stat-number.amber{color:var(--amber)}
+.stat-number.teal{color:var(--teal)}
+
+.stat-label{
+  font-family:'Manrope',sans-serif;font-weight:300;
+  font-size:0.78rem;line-height:1.5;color:var(--t2);
+  margin-bottom:0.75rem;
+}
+
+.stat-source{
+  font-family:'DM Mono',monospace;font-size:0.48rem;
+  letter-spacing:0.06em;text-transform:uppercase;color:var(--t4);
+}
+
+/* live pulse indicator */
+.pulse-dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  margin-right:6px;animation:livePulse 1.5s ease infinite;
+}
+.pulse-dot.blue{background:var(--accent)}
+.pulse-dot.red{background:var(--burg)}
+.pulse-dot.green{background:var(--teal)}
+.pulse-dot.amber{background:var(--amber)}
+
+@keyframes livePulse{
+  0%,100%{box-shadow:0 0 0 0 currentColor}
+  50%{box-shadow:0 0 0 6px transparent}
+}
+
+/* ═══ CHART PANELS — FULL BLEED ═══ */
+.chart-panel{
+  width:100%;background:var(--bg2);
+  border-top:1px solid rgba(255,255,255,0.04);
+  position:relative;overflow:hidden;
+}
+
+.chart-panel-inner{
+  display:grid;grid-template-columns:1fr 1fr;
+  min-height:80vh;
+}
+
+.chart-narrative{
+  padding:6rem 4rem;display:flex;flex-direction:column;justify-content:center;
+  border-right:1px solid rgba(255,255,255,0.04);
+}
+
+.chart-visual{
+  padding:3rem;display:flex;flex-direction:column;justify-content:center;
+  position:relative;
+}
+
+.chart-visual canvas{max-height:450px}
+
+/* ═══ NARRATIVE SECTIONS — FULL WIDTH ═══ */
+.narrative-section{
+  width:100%;padding:8rem 0;
+  position:relative;
+}
+
+.narrative-inner{
+  max-width:720px;margin:0 auto;padding:0 3rem;
+}
+
+.sec-label{
+  font-family:'DM Mono',monospace;font-size:0.5rem;font-weight:500;
+  letter-spacing:0.3em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;
+}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--t4)}
+
+.sec-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(1.8rem,3.5vw,2.6rem);line-height:1.1;
+  color:#fff;margin-bottom:2.5rem;letter-spacing:-0.02em;
+}
+
+.prose{
+  font-size:1.05rem;line-height:1.78;color:var(--t1);margin-bottom:1.75rem;
+}
+.prose strong{color:#fff;font-weight:500}
+.il{font-family:'DM Mono',monospace;font-weight:500;color:var(--accent);font-size:0.92em}
+
+/* ═══ PULL QUOTE — FULL BLEED ═══ */
+.pq-section{
+  width:100%;padding:6rem 0;
+  background:var(--bg3);
+  border-top:1px solid rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  display:flex;align-items:center;justify-content:center;
+}
+
+.pq-inner{
+  max-width:800px;padding:0 4rem;text-align:center;
+}
+
+.pq-mark{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:4rem;
+  color:var(--accent);line-height:1;margin-bottom:1rem;opacity:0.4;
+}
+
+.pq-text{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:clamp(1.2rem,2.5vw,1.6rem);line-height:1.55;
+  color:var(--t1);margin-bottom:1.5rem;
+}
+
+.pq-cite{
+  font-family:'DM Mono',monospace;font-size:0.6rem;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--t3);
+}
+
+/* ═══ TABLE SECTION — FULL BLEED ═══ */
+.table-section{
+  width:100%;padding:0;
+  background:var(--bg2);
+  border-top:1px solid rgba(255,255,255,0.04);
+}
+
+.table-header-bar{
+  padding:2.5rem 3rem 1.5rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.table-header-bar h3{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:#fff;
+  margin-bottom:0.25rem;
+}
+.table-header-bar p{
+  font-family:'Manrope',sans-serif;font-weight:300;font-size:0.75rem;color:var(--t3);
+}
+
+.full-table{
+  width:100%;border-collapse:collapse;
+  font-family:'Manrope',sans-serif;font-size:0.85rem;
+}
+.full-table thead th{
+  font-family:'DM Mono',monospace;font-size:0.55rem;font-weight:500;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--t3);
+  padding:1.25rem 2rem;text-align:left;
+  background:var(--bg3);border-bottom:1px solid rgba(255,255,255,0.06);
+  position:sticky;top:0;
+}
+.full-table thead th.r{text-align:right}
+.full-table tbody td{
+  padding:1.1rem 2rem;border-bottom:1px solid rgba(255,255,255,0.03);
+  color:var(--t2);transition:all 0.2s;
+}
+.full-table tbody tr:hover td{background:rgba(255,255,255,0.02);color:var(--t1)}
+.full-table .r{text-align:right;font-family:'DM Mono',monospace;font-size:0.82rem}
+.full-table .hi{color:var(--accent);font-weight:600}
+.full-table .lo{color:var(--burg);font-weight:600}
+.full-table .bar-cell{position:relative}
+.full-table .bar-cell .bar{
+  position:absolute;left:0;top:0;bottom:0;
+  background:rgba(32,88,168,0.08);z-index:0;transition:width 1.2s cubic-bezier(0.22,1,0.36,1);
+}
+.full-table .bar-cell span{position:relative;z-index:1}
+
+.table-foot{
+  font-family:'DM Mono',monospace;font-size:0.5rem;
+  color:var(--t4);text-transform:uppercase;letter-spacing:0.06em;
+  padding:1rem 2rem;border-top:1px solid rgba(255,255,255,0.06);
+}
+
+/* ═══ METHODOLOGY ═══ */
+.method-section{
+  width:100%;padding:5rem 0;
+  background:var(--bg3);
+  border-top:1px solid rgba(255,255,255,0.04);
+}
+.method-inner{
+  max-width:760px;margin:0 auto;padding:0 3rem;
+}
+.method-label{
+  font-family:'DM Mono',monospace;font-size:0.5rem;font-weight:500;
+  letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:1.5rem;
+}
+.method-inner h3{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;
+  color:#fff;margin-bottom:1.25rem;
+}
+.method-inner p{
+  font-family:'Manrope',sans-serif;font-weight:300;
+  font-size:0.82rem;line-height:1.72;color:var(--t2);margin-bottom:0.75rem;
+}
+
+/* ═══ REFERENCES ═══ */
+.ref-section{
+  max-width:760px;margin:0 auto;padding:4rem 3rem 6rem;
+}
+.ref-section h3{
+  font-family:'DM Mono',monospace;font-size:0.5rem;font-weight:500;
+  letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:2rem;
+}
+.ref-section ol{list-style:none;counter-reset:ref}
+.ref-section li{
+  counter-increment:ref;
+  font-family:'Manrope',sans-serif;font-weight:300;
+  font-size:0.72rem;line-height:1.6;color:var(--t2);
+  margin-bottom:0.85rem;padding-left:2.5rem;position:relative;
+}
+.ref-section li::before{
+  content:counter(ref,decimal-leading-zero);position:absolute;left:0;
+  font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--t4);
+}
+.ref-section li a{color:var(--accent);text-decoration:none}
+.ref-section li a:hover{text-decoration:underline}
+
+/* ═══ FOOTER ═══ */
+footer{
+  border-top:1px solid rgba(255,255,255,0.04);
+  padding:4rem 2rem;text-align:center;
+}
+.foot-logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:0.85rem;
+  letter-spacing:0.22em;text-transform:uppercase;color:var(--t2);margin-bottom:0.3rem;
+}
+.foot-sub{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--t4)}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:900px){
+  .chart-panel-inner{grid-template-columns:1fr}
+  .chart-narrative{border-right:none;border-bottom:1px solid rgba(255,255,255,0.04);padding:4rem 2rem}
+  .chart-visual{padding:2rem}
+  .dash-grid{grid-template-columns:repeat(2,1fr)}
+  .stat-tile.span-3{grid-column:span 1}
+  .hero-content{padding:0 1.5rem}
+  .narrative-inner{padding:0 1.5rem}
+}
+@media(max-width:600px){
+  .dash-grid{grid-template-columns:1fr}
+  .hero-hed{font-size:2.6rem}
+}
+
+/* ═══ ANIMATED COUNTER ═══ */
+.counter{display:inline-block}
+
+/* Utility */
+.span-3{grid-column:span 3}
+.span-4{grid-column:span 4}
+.span-6{grid-column:span 6}
+.span-12{grid-column:span 12}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav class="topbar">
+  <a href="/" class="topbar-logo">MWR Intelligence</a>
+  <span>Story 001 — Economy &amp; Governance</span>
+</nav>
+
+<!-- ══════════════════════════════════════════════════
+     HERO — 300vh scroll, sticky viewport, GSAP animated
+     ══════════════════════════════════════════════════ -->
+<section class="hero" id="hero-trigger">
+  <div class="hero-sticky">
+    <div class="hero-mesh"></div>
+    <div class="dot-grid"></div>
+    <div class="hero-content">
+      <div class="hero-sector" id="h-sector">Economy &amp; Governance — April 2026</div>
+      <h1 class="hero-hed" id="h-hed">The<br><em id="h-em">Velvet Rope</em><br>Economy</h1>
+      <p class="hero-dek" id="h-dek">India's GDP grows at 6.5–7.6%. Its manufacturing share of GDP just hit a 64-year low. The top 1% captures more national income than at any point since 1922. Who, exactly, is this growth for?</p>
+      <div class="hero-meta" id="h-meta">
+        <span><span class="meta-pip"></span> MWR Collective</span>
+        <span>22 sources</span>
+        <span>12 min read</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     DASHBOARD — Full-bleed stat tiles
+     ══════════════════════════════════════════════════ -->
+<section class="dashboard" id="dash">
+  <div class="dash-grid">
+    <div class="stat-tile span-3" data-anim="tile">
+      <div class="stat-eyebrow"><span class="pulse-dot blue"></span> GDP Growth</div>
+      <div class="stat-number accent"><span class="counter" data-to="7.4" data-decimals="1">0</span><span class="unit">%</span></div>
+      <div class="stat-label">Real GDP growth, FY26<br>First advance estimate</div>
+      <div class="stat-source">Economic Survey 2025-26, MoF</div>
+    </div>
+    <div class="stat-tile span-3" data-anim="tile">
+      <div class="stat-eyebrow"><span class="pulse-dot red"></span> Manufacturing</div>
+      <div class="stat-number burg"><span class="counter" data-to="12.53" data-decimals="2">0</span><span class="unit">%</span></div>
+      <div class="stat-label">Manufacturing share of GDP<br>Lowest since 1960</div>
+      <div class="stat-source">World Bank, WDI 2024</div>
+    </div>
+    <div class="stat-tile span-3" data-anim="tile">
+      <div class="stat-eyebrow"><span class="pulse-dot amber"></span> Inequality</div>
+      <div class="stat-number amber"><span class="counter" data-to="22.6" data-decimals="1">0</span><span class="unit">%</span></div>
+      <div class="stat-label">Top 1% pre-tax income share<br>Highest since 1922</div>
+      <div class="stat-source">World Inequality Lab, 2024</div>
+    </div>
+    <div class="stat-tile span-3" data-anim="tile">
+      <div class="stat-eyebrow"><span class="pulse-dot green"></span> Employment</div>
+      <div class="stat-number"><span class="counter" data-to="43" data-decimals="0">0</span><span class="unit">%</span></div>
+      <div class="stat-label">Workforce still in agriculture<br>Down from 44.8% in 2024</div>
+      <div class="stat-source">PLFS Annual Report 2025, MoSPI</div>
+    </div>
+
+    <div class="stat-tile span-4" data-anim="tile">
+      <div class="stat-eyebrow">PLI Jobs</div>
+      <div class="stat-number"><span class="counter" data-to="12" data-decimals="0">0</span><span class="unit"> lakh</span></div>
+      <div class="stat-label">Direct + indirect jobs created vs. 60 lakh target</div>
+      <div class="stat-source">PIB/DPIIT, Aug 2025</div>
+    </div>
+    <div class="stat-tile span-4" data-anim="tile">
+      <div class="stat-eyebrow">Youth Unemployment</div>
+      <div class="stat-number burg"><span class="counter" data-to="9.9" data-decimals="1">0</span><span class="unit">%</span></div>
+      <div class="stat-label">Age 15–29, usual status<br>Monthly CWS peaked at 17.8%</div>
+      <div class="stat-source">PLFS 2025 Annual, MoSPI</div>
+    </div>
+    <div class="stat-tile span-4" data-anim="tile">
+      <div class="stat-eyebrow">Female LFPR</div>
+      <div class="stat-number teal"><span class="counter" data-to="40.0" data-decimals="1">0</span><span class="unit">%</span></div>
+      <div class="stat-label">Up from 23.3% in 2017-18<br>Largely rural self-employment</div>
+      <div class="stat-source">PLFS 2025; EPW Vol.60, 2025</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 01 — THE SIGNAL
+     ══════════════════════════════════════════════════ -->
+<section class="narrative-section">
+  <div class="narrative-inner">
+    <div class="sec-label">Section 01</div>
+    <h2 class="sec-title">The Signal</h2>
+    <p class="prose">In January 2026, the Economic Survey 2025-26 delivered the number everyone expected: <span class="il">7.4%</span> real GDP growth for FY26. The fastest among major economies. The Survey projected potential growth upgraded to 7%. Within weeks, MoSPI's GDP base year revision pushed the figure to 7.6% under the new 2022-23 series.</p>
+    <p class="prose">The international institutions largely concurred. The IMF's 2025 Article IV pegged growth at <span class="il">6.6%</span>, noting continued momentum alongside tariff headwinds. The ADB settled on 6.5%. India was growing, and growing fast.</p>
+    <p class="prose">But the number that should have led every front page sat quietly in the World Bank's development indicators: India's manufacturing value added as a share of GDP stood at <span class="il">12.53%</span> in 2024 — the lowest since the dataset began in 1960. Lower than the licence raj. Moving in the opposite direction of the government's 25% target.</p>
+    <p class="prose">This is the paradox that defines India's current moment: a growth engine running hotter than any comparable economy, producing wealth concentrating faster than at any point in a century, and building an industrial base that is — by its own chosen metric — shrinking as a share of the whole.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     CHART PANEL 1 — PLI vs EMPLOYMENT (split screen)
+     ══════════════════════════════════════════════════ -->
+<section class="chart-panel" id="chart1-trigger">
+  <div class="chart-panel-inner">
+    <div class="chart-narrative">
+      <div class="sec-label">Section 02</div>
+      <h2 class="sec-title">The Data</h2>
+      <p class="prose">The PLI scheme, launched in 2020 with ₹1.97 lakh crore across 14 sectors, has delivered real results: ₹1.76 lakh crore in investments, ₹16.5 lakh crore in production, electronics output up 146%. These numbers are not fiction.</p>
+      <p class="prose">But the scheme promised <span class="il">60 lakh</span> jobs over five years. It has created 12 lakh — one-fifth of the target. Manufacturing's employment share has inched to just 12.1%. India is adding factory output without proportionally adding factory workers.</p>
+      <p class="prose" style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--t3);border-left:2px solid var(--t4);padding-left:1rem;margin-top:2rem">
+        Sources: PIB/DPIIT PLI Dashboard Aug 2025; PLFS Annual Reports 2020–2025, MoSPI
+      </p>
+    </div>
+    <div class="chart-visual">
+      <canvas id="chart-pli"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     PULL QUOTE — FULL BLEED
+     ══════════════════════════════════════════════════ -->
+<section class="pq-section">
+  <div class="pq-inner">
+    <div class="pq-mark">"</div>
+    <p class="pq-text">The headline unemployment rate of 3.1% is an artefact of how India counts work. When 56% of your workforce is self-employed — including unpaid family helpers on farms — the denominator does the heavy lifting.</p>
+    <div class="pq-cite">MWR analysis of PLFS 2025 Annual Report, MoSPI</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     CHART PANEL 2 — Female LFPR (split screen)
+     ══════════════════════════════════════════════════ -->
+<section class="chart-panel" id="chart2-trigger">
+  <div class="chart-panel-inner">
+    <div class="chart-narrative">
+      <h2 class="sec-title">The Female LFPR Illusion</h2>
+      <p class="prose">The headline improvement is dramatic: from 23.3% in 2017-18 to 40.0% in 2025. But as an EPW analysis from June 2025 documents, this surge is largely driven by rural women entering own-account and unpaid self-employment in agriculture.</p>
+      <p class="prose">The share of women in regular salaried jobs has <strong>actually declined</strong>. Urban female LFPR was just <span class="il">25.3%</span> in December 2025. The World Inequality Report 2026 records India's female share of labour income at 15.7% — unchanged in a decade.</p>
+      <p class="prose" style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--t3);border-left:2px solid var(--t4);padding-left:1rem;margin-top:2rem">
+        Sources: PLFS Annual Reports 2017–2025; PLFS Monthly Bulletin Dec 2025; EPW Vol.60 (26&27); WIR 2026
+      </p>
+    </div>
+    <div class="chart-visual">
+      <canvas id="chart-flfpr"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 03 — THE PATTERN
+     ══════════════════════════════════════════════════ -->
+<section class="narrative-section">
+  <div class="narrative-inner">
+    <div class="sec-label">Section 03</div>
+    <h2 class="sec-title">The Pattern</h2>
+    <p class="prose">In March 2024, the World Inequality Lab released a finding that reframed India's growth debate. Authored by Bharti, Chancel, Piketty, and Somanchi: the top 1% of earners now capture <span class="il">22.6%</span> of pre-tax national income. The top 1% control over 40% of total wealth. Both at their highest since 1922.</p>
+    <p class="prose">The top 10% receive 58% of national income. The bottom 50% receive 15%. The top 10% share rose from 30% in 1982 to nearly 58% by 2023, driven by the top 1%, whose share grew from 6.1% to 22.6%. The World Inequality Report 2026, released December 2025, confirmed this gap has shown no signs of narrowing.</p>
+    <p class="prose">What makes this structurally significant — not merely politically uncomfortable — is its relationship to the growth model. Services generate ~55% of GDP but employ relatively fewer per unit of output. Agriculture employs 43% but contributes under 18% of GVA. Manufacturing sits between, contributing 12–17% of GDP depending on methodology, but only 12.1% of formal employment.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     TABLE — FULL BLEED STRUCTURAL TABLE
+     ══════════════════════════════════════════════════ -->
+<section class="table-section" id="table-trigger">
+  <div class="table-header-bar">
+    <h3>The Structural Signature</h3>
+    <p>GDP contribution vs. employment share by sector — the gap defines who growth reaches</p>
+  </div>
+  <table class="full-table">
+    <thead>
+      <tr>
+        <th>Sector</th>
+        <th class="r">Share of GDP / GVA</th>
+        <th class="r">Share of Employment</th>
+        <th class="r">Gap</th>
+        <th style="width:20%">Output / Worker Ratio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Agriculture &amp; Allied</strong></td>
+        <td class="r">17.9%</td>
+        <td class="r">43.0%</td>
+        <td class="r lo">–25.1 pp</td>
+        <td class="bar-cell"><div class="bar" style="width:0%;background:rgba(200,32,58,0.12)"></div><span>Low productivity</span></td>
+      </tr>
+      <tr>
+        <td><strong>Manufacturing</strong></td>
+        <td class="r">~13–17%</td>
+        <td class="r">12.1%</td>
+        <td class="r hi">+1–5 pp</td>
+        <td class="bar-cell"><div class="bar" style="width:0%;background:rgba(32,88,168,0.12)"></div><span>Capital-intensive</span></td>
+      </tr>
+      <tr>
+        <td><strong>Services</strong></td>
+        <td class="r">~55%</td>
+        <td class="r">31.8%</td>
+        <td class="r hi">+23.2 pp</td>
+        <td class="bar-cell"><div class="bar" style="width:0%;background:rgba(32,88,168,0.12)"></div><span>High productivity</span></td>
+      </tr>
+      <tr>
+        <td><strong>Construction</strong></td>
+        <td class="r">~8%</td>
+        <td class="r">13.1%</td>
+        <td class="r lo">–5.1 pp</td>
+        <td class="bar-cell"><div class="bar" style="width:0%;background:rgba(200,32,58,0.12)"></div><span>Labour-absorbing</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="table-foot">Sources: MoSPI Statistical Appendix 2025-26; PLFS Annual 2025. Manufacturing GDP share varies: 12.53% (World Bank, narrow) to ~17% (CII/national accounts, broader).</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     PULL QUOTE 2
+     ══════════════════════════════════════════════════ -->
+<section class="pq-section">
+  <div class="pq-inner">
+    <div class="pq-mark">"</div>
+    <p class="pq-text">The Billionaire Raj is now more unequal than the British colonial Raj. India's top 1% income share has risen to levels not seen in a century of recorded data.</p>
+    <div class="pq-cite">Bharti, Chancel, Piketty &amp; Somanchi — World Inequality Lab, 2024</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 04 — WHAT THIS MEANS
+     ══════════════════════════════════════════════════ -->
+<section class="narrative-section">
+  <div class="narrative-inner">
+    <div class="sec-label">Section 04</div>
+    <h2 class="sec-title">What This Means</h2>
+    <p class="prose">India's growth is real. The DPI infrastructure — Aadhaar, UPI, GSTN — is genuinely world-class. Manufacturing FDI rose 18% in FY2024-25. The PLI scheme has delivered in electronics and pharma. Inflation is contained at 2.8%. The fiscal deficit is being managed.</p>
+    <p class="prose">The question is not whether India is growing. The question is whether this model — services-heavy, capital-intensive, concentrated at the top — can get 1.4 billion people through the door. The data suggests it cannot, at least not in its current form.</p>
+    <p class="prose">Three structural constraints stand out. First, <strong>manufacturing employment has decoupled from output</strong>. PLI drives capital investment, but jobs-per-crore-invested falls as firms automate. The 12 lakh jobs against a 60 lakh target is not delivery failure — it is modern manufacturing's structural reality.</p>
+    <p class="prose">Second, <strong>the female LFPR recovery is largely fictive in quality terms</strong>. The increase reflects rural women being counted as workers in own-account agriculture and unpaid family enterprise — not women entering formal, remunerative employment.</p>
+    <p class="prose">Third, <strong>income concentration is a demand constraint</strong>. When the top 10% captures 58% of national income and the bottom 50% captures 15%, consumer demand is structurally narrow. This explains volume stagnation in mass-market FMCG, the persistent K-shaped recovery, and why luxury booms while the base stays flat.</p>
+    <p class="prose">India's velvet rope is not a conspiracy. It is a structure — built from specific choices about which sectors to incentivise, which metrics to optimise, and which populations to count. The first step to dismantling it is to measure it honestly.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     METHODOLOGY
+     ══════════════════════════════════════════════════ -->
+<section class="method-section">
+  <div class="method-inner">
+    <div class="method-label">Methodology &amp; Limitations</div>
+    <h3>What this analysis can and cannot say</h3>
+    <p>This story draws on 22 official and academic sources: government statistical publications (MoF Economic Survey, PLFS, PIB/DPIIT dashboards), multilateral assessments (IMF Article IV, World Bank CEM, OECD, UNCTAD, ADB), RBI handbooks, NITI Aayog working papers, and the World Inequality Lab's distributional national accounts.</p>
+    <p>GDP figures vary by base year and methodology. We report ranges (6.5–7.6%) and name the specific source for each figure. Manufacturing GDP share varies between 12.53% (World Bank narrow ISIC) and ~17% (CII/national accounts broader definition). Both are reported.</p>
+    <p>PLFS data underwent a methodological shift in January 2025 (July-June → January-December cycle). Pre- and post-2025 data are not directly comparable. Monthly CWS and annual usual-status data measure different constructs — we report both, clearly labelled.</p>
+    <p>World Inequality Lab estimates combine income tax tabulations, national accounts, rich lists, and survey data via distributional national accounts methodology. These are estimates, not administrative counts. Significant uncertainty exists in bottom-half income estimation.</p>
+    <p>This analysis does not claim India's growth is illusory or that PLI has failed. It claims — and the data supports — that growth benefits are highly concentrated, manufacturing employment has not scaled with output, and headline labour improvements conceal significant quality gaps.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     REFERENCES
+     ══════════════════════════════════════════════════ -->
+<section class="ref-section">
+  <h3>References</h3>
+  <ol>
+    <li><strong>Ministry of Finance, GoI. (2026).</strong> Economic Survey 2025-26. <a href="https://www.indiabudget.gov.in/economicsurvey/doc/echapter.pdf">indiabudget.gov.in</a></li>
+    <li><strong>Ministry of Finance, GoI. (2026).</strong> Economic Survey 2025-26 Highlights. <a href="https://www.indiabudget.gov.in/economicsurvey/doc/Infographics%20English.pdf">indiabudget.gov.in</a></li>
+    <li><strong>IMF. (2025).</strong> India: 2025 Article IV Staff Report. No. 25/314. <a href="https://www.imf.org/-/media/files/publications/cr/2025/english/1indea2025003-source-pdf.pdf">imf.org</a></li>
+    <li><strong>World Bank. (2024).</strong> India CEM: Becoming a High-Income Economy in a Generation. <a href="https://thedocs.worldbank.org/en/doc/400139d320ead96a0ec624d3608d9b56-0310012025/original/India-Country-Economic-Memorandum-2024-0227c.pdf">worldbank.org</a></li>
+    <li><strong>RBI. (2025).</strong> Handbook of Statistics on the Indian Economy 2024-25. <a href="https://rbidocs.rbi.org.in/rdocs/Publications/PDFs/0HBS2025290820256728B882492F427DA0262A1392E16E95.PDF">rbi.org.in</a></li>
+    <li><strong>RBI. (2025).</strong> Annual Report 2024-25. <a href="https://rbidocs.rbi.org.in/rdocs/AnnualReport/PDFs/0ANNUALREPORT202425DA4AE08189C848C8846718B080F2A0A9.PDF">rbi.org.in</a></li>
+    <li><strong>MoSPI. (2026).</strong> PLFS Annual Report 2025 (Jan–Dec 2025). <a href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=2246009">pib.gov.in</a></li>
+    <li><strong>PIB/DPIIT. (2025).</strong> PLI Scheme: Powering Industrial Renaissance (Aug 2025). <a href="https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/aug/doc2025824619301.pdf">pib.gov.in</a></li>
+    <li><strong>DPIIT. (2026).</strong> Annual Report 2025-26. <a href="https://www.dpiit.gov.in/static/uploads/2026/03/863a5fef349d79a1bba316c4b51eaacb.pdf">dpiit.gov.in</a></li>
+    <li><strong>NITI Aayog. (2024).</strong> Viksit Bharat Working Paper (Virmani). <a href="https://www.niti.gov.in/sites/default/files/2024-07/WP_Viksit_Bharat_2024-July-19.pdf">niti.gov.in</a></li>
+    <li><strong>NITI Aayog. (2026).</strong> Scenarios Towards Viksit Bharat & Net Zero, Vol 1. <a href="https://niti.gov.in/sites/default/files/2026-02/Scenarios-Towards-Viksit-Bharat-and-Net-Zero-%20An-Overview-Vol1.pdf">niti.gov.in</a></li>
+    <li><strong>Bharti, Chancel, Piketty & Somanchi. (2024).</strong> Income and Wealth Inequality in India, 1922-2023. <em>WIL WP 2024/09.</em> <a href="https://wid.world/wp-content/uploads/2024/03/WorldInequalityLab_WP2024_09_Income-and-Wealth-Inequality-in-India-1922-2023_Final.pdf">wid.world</a></li>
+    <li><strong>UNCTAD. (2025).</strong> World Investment Report 2025. <a href="https://unctad.org/system/files/official-document/wir2025_en.pdf">unctad.org</a></li>
+    <li><strong>OECD. (2025).</strong> Economic Outlook Vol.2025 Issue 2 — India. <a href="https://www.oecd.org/en/publications/2025/12/oecd-economic-outlook-volume-2025-issue-2_413f7d0a/full-report/india_65a8d75a.html">oecd.org</a></li>
+    <li><strong>Deloitte India. (2026).</strong> India Economic Outlook, January 2026. <a href="https://www.deloitte.com/in/en/our-thinking/spotlight-on-indian-economy/india-economic-outlook-january-2026.html">deloitte.com</a></li>
+    <li><strong>MoSPI. (2025).</strong> PLFS Quarterly Bulletin, Oct–Dec 2025. <a href="https://www.mospi.gov.in/uploads/publications_reports/publications_reports1770719506668_061eb34b-ec61-4890-9e61-73cc717b4d0b_Quarterly_Bulletin_PLFS_OCT-DEC_2025.pdf">mospi.gov.in</a></li>
+    <li><strong>MoF. (2026).</strong> Economic Survey Statistical Appendix. <a href="https://www.indiabudget.gov.in/economicsurvey/doc/Statistical-Appendix-in-English.pdf">indiabudget.gov.in</a></li>
+    <li><strong>World Bank. (2024).</strong> WDI: Manufacturing, value added (% of GDP) — India. <a href="https://data.worldbank.org/indicator/NV.IND.MANF.ZS?locations=IN">data.worldbank.org</a></li>
+    <li><strong>Chancel, Gómez-Carrera, Moshrif & Piketty. (2025).</strong> World Inequality Report 2026. <a href="https://wid.world">wid.world</a></li>
+    <li><strong>ADB. (2025).</strong> Asian Development Outlook, Sep 2025 — India. <a href="https://www.adb.org/news/adb-pegs-india-growth-6-5-percent-fy2025-fy2026">adb.org</a></li>
+    <li><strong>EPW. (2025).</strong> Decoding Rising Female Labour Force Participation. <em>Vol.60, Issue 26&27.</em> <a href="https://www.epw.in/journal/2025/26-27/special-articles/decoding-rising-female-labour-force-participation.html">epw.in</a></li>
+    <li><strong>India Briefing. (2025).</strong> India Manufacturing Tracker 2024-25. <a href="https://www.india-briefing.com/news/india-manufacturing-tracker-2025-33968.html/">india-briefing.com</a></li>
+  </ol>
+</section>
+
+<footer>
+  <div class="foot-logo">MWR Intelligence</div>
+  <div class="foot-sub">A publication of MWR Collective — New Delhi</div>
+</footer>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SCRIPTS — GSAP ScrollTrigger + Animated Counters + Charts
+     ══════════════════════════════════════════════════════════════════ -->
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── Progress Bar ──
+ScrollTrigger.create({
+  trigger: document.body,
+  start: "top top",
+  end: "bottom bottom",
+  onUpdate: self => {
+    document.getElementById('progress').style.width = (self.progress * 100) + '%';
+  }
+});
+
+// ── Hero Animations ──
+const heroTL = gsap.timeline({
+  scrollTrigger: {
+    trigger: "#hero-trigger",
+    start: "top top",
+    end: "+=200%",
+    scrub: 1,
+    pin: false,
+  }
+});
+
+// Hero entrance (non-scrub, just play on load)
+gsap.fromTo("#h-sector", {opacity:0, y:30}, {opacity:1, y:0, duration:1.2, delay:0.3, ease:"power3.out"});
+gsap.fromTo("#h-hed", {opacity:0, y:50}, {opacity:1, y:0, duration:1.4, delay:0.5, ease:"power3.out"});
+gsap.fromTo("#h-em", {opacity:0, scale:0.8, rotateX:15}, {opacity:1, scale:1, rotateX:0, duration:1.6, delay:0.7, ease:"elastic.out(1,0.5)"});
+gsap.fromTo("#h-dek", {opacity:0, y:30}, {opacity:1, y:0, duration:1.2, delay:0.9, ease:"power3.out"});
+gsap.fromTo("#h-meta", {opacity:0, y:20}, {opacity:1, y:0, duration:1, delay:1.2, ease:"power3.out"});
+
+// Hero parallax on scroll
+heroTL.to("#h-hed", {y:-80, opacity:0.3}, 0);
+heroTL.to("#h-dek", {y:-50, opacity:0}, 0.1);
+heroTL.to("#h-meta", {y:-30, opacity:0}, 0.05);
+heroTL.to(".dot-grid", {opacity:0.1, scale:1.2}, 0);
+
+// ── Dashboard Counter Animations ──
+document.querySelectorAll('.counter').forEach(el => {
+  const target = parseFloat(el.dataset.to);
+  const decimals = parseInt(el.dataset.decimals);
+  const obj = {val: 0};
+
+  ScrollTrigger.create({
+    trigger: el.closest('.stat-tile'),
+    start: "top 85%",
+    once: true,
+    onEnter: () => {
+      gsap.to(obj, {
+        val: target,
+        duration: 2,
+        ease: "power2.out",
+        onUpdate: () => {
+          el.textContent = obj.val.toFixed(decimals);
+        }
+      });
+    }
+  });
+});
+
+// ── Stat Tile Stagger ──
+gsap.utils.toArray('[data-anim="tile"]').forEach((tile, i) => {
+  gsap.fromTo(tile,
+    {opacity: 0, y: 40},
+    {
+      opacity: 1, y: 0, duration: 0.8, delay: i * 0.08,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: tile,
+        start: "top 90%",
+        once: true,
+      }
+    }
+  );
+});
+
+// ── Narrative section reveals ──
+document.querySelectorAll('.sec-label, .sec-title, .prose').forEach(el => {
+  gsap.fromTo(el,
+    {opacity: 0, y: 24},
+    {
+      opacity: 1, y: 0, duration: 0.9,
+      ease: "power3.out",
+      scrollTrigger: {trigger: el, start: "top 88%", once: true}
+    }
+  );
+});
+
+// ── Pull Quote reveal ──
+document.querySelectorAll('.pq-inner').forEach(el => {
+  gsap.fromTo(el,
+    {opacity: 0, scale: 0.95},
+    {
+      opacity: 1, scale: 1, duration: 1.2,
+      ease: "power3.out",
+      scrollTrigger: {trigger: el, start: "top 80%", once: true}
+    }
+  );
+});
+
+// ── Chart panel slide-in ──
+document.querySelectorAll('.chart-panel-inner').forEach(panel => {
+  const narrative = panel.querySelector('.chart-narrative');
+  const visual = panel.querySelector('.chart-visual');
+  gsap.fromTo(narrative, {opacity:0, x:-40}, {opacity:1, x:0, duration:1, ease:"power3.out", scrollTrigger:{trigger:panel, start:"top 75%", once:true}});
+  gsap.fromTo(visual, {opacity:0, x:40}, {opacity:1, x:0, duration:1, delay:0.15, ease:"power3.out", scrollTrigger:{trigger:panel, start:"top 75%", once:true}});
+});
+
+// ── Table Bar Animations ──
+ScrollTrigger.create({
+  trigger: "#table-trigger",
+  start: "top 70%",
+  once: true,
+  onEnter: () => {
+    const bars = document.querySelectorAll('.bar-cell .bar');
+    const widths = ['42%', '55%', '95%', '30%']; // relative productivity visual
+    bars.forEach((bar, i) => {
+      gsap.to(bar, {width: widths[i], duration: 1.2, delay: i * 0.15, ease: "power3.out"});
+    });
+  }
+});
+
+// ── CHARTS ──
+Chart.defaults.color = '#605E5A';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.04)';
+Chart.defaults.font.family = "'Manrope', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.font.weight = 300;
+
+const tooltipConfig = {
+  backgroundColor:'#1A1A24',
+  titleFont:{family:"'DM Mono',monospace",size:10},
+  bodyFont:{family:"'Manrope',sans-serif",size:12},
+  borderColor:'rgba(255,255,255,0.08)',borderWidth:1,padding:14,cornerRadius:2,
+};
+
+// Chart 1
+new Chart(document.getElementById('chart-pli'), {
+  type: 'bar',
+  data: {
+    labels: ['FY21','FY22','FY23','FY24','FY25'],
+    datasets: [
+      {
+        label: 'PLI Production (₹ Lakh Cr)',
+        data: [0.5, 2.8, 6.2, 10.8, 16.5],
+        backgroundColor:'rgba(32,88,168,0.65)',borderColor:'rgba(32,88,168,1)',
+        borderWidth:1,borderRadius:3,yAxisID:'y',order:2,
+      },
+      {
+        label: 'Mfg Employment Share (%)',
+        data: [11.2, 11.4, 11.6, 11.8, 12.1],
+        type:'line',borderColor:'#C8203A',backgroundColor:'rgba(200,32,58,0.06)',
+        borderWidth:2.5,pointBackgroundColor:'#C8203A',pointBorderColor:'#0D0D14',
+        pointBorderWidth:2,pointRadius:5,tension:0.3,fill:true,yAxisID:'y1',order:1,
+      }
+    ]
+  },
+  options: {
+    responsive:true,maintainAspectRatio:true,aspectRatio:1.6,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{position:'bottom',labels:{padding:20,usePointStyle:true,pointStyleWidth:14,font:{family:"'DM Mono',monospace",size:9}}},
+      tooltip:tooltipConfig,
+    },
+    scales:{
+      y:{position:'left',title:{display:true,text:'₹ Lakh Cr',font:{family:"'DM Mono',monospace",size:8},color:'#3A3936'},grid:{color:'rgba(255,255,255,0.03)'},ticks:{font:{family:"'DM Mono',monospace",size:9}}},
+      y1:{position:'right',min:10,max:14,title:{display:true,text:'%',font:{family:"'DM Mono',monospace",size:8},color:'#3A3936'},grid:{drawOnChartArea:false},ticks:{font:{family:"'DM Mono',monospace",size:9},callback:v=>v+'%'}},
+      x:{grid:{display:false},ticks:{font:{family:"'DM Mono',monospace",size:9}}}
+    }
+  }
+});
+
+// Chart 2
+new Chart(document.getElementById('chart-flfpr'), {
+  type: 'line',
+  data: {
+    labels: ['2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24','2025'],
+    datasets: [
+      {
+        label: 'Total Female LFPR (Usual Status)',
+        data: [23.3, 24.5, 30.0, 32.5, 32.8, 37.0, 41.7, 40.0],
+        borderColor:'#2058A8',backgroundColor:'rgba(32,88,168,0.06)',
+        borderWidth:2.5,pointBackgroundColor:'#2058A8',pointBorderColor:'#0D0D14',
+        pointBorderWidth:2,pointRadius:5,tension:0.35,fill:true,
+      },
+      {
+        label: 'Urban Female LFPR (CWS)',
+        data: [20.4, 21.2, 21.8, 22.1, 23.0, 25.4, 25.1, 25.3],
+        borderColor:'#C8203A',borderWidth:2,pointBackgroundColor:'#C8203A',
+        pointBorderColor:'#0D0D14',pointBorderWidth:2,pointRadius:4,
+        borderDash:[6,4],tension:0.35,fill:false,
+      }
+    ]
+  },
+  options: {
+    responsive:true,maintainAspectRatio:true,aspectRatio:1.6,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{position:'bottom',labels:{padding:20,usePointStyle:true,pointStyleWidth:14,font:{family:"'DM Mono',monospace",size:9}}},
+      tooltip:{...tooltipConfig,callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+'%'}},
+    },
+    scales:{
+      y:{min:15,max:45,title:{display:true,text:'LFPR %',font:{family:"'DM Mono',monospace",size:8},color:'#3A3936'},grid:{color:'rgba(255,255,255,0.03)'},ticks:{font:{family:"'DM Mono',monospace",size:9},callback:v=>v+'%'}},
+      x:{grid:{display:false},ticks:{font:{family:"'DM Mono',monospace",size:9}}}
+    }
+  }
+});
+</script>
+</body>
+</html>
